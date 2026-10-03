@@ -1,0 +1,6 @@
+{
+  "name": "LP Gas Bangladesh",
+  "description": "A modern web application for an LP Gas cylinder business in Bangladesh with dynamic pricing and MFS payment integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

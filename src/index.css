@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Hind Siliguri", sans-serif;
+  --font-display: "Playfair Display", serif;
+}
+
+body {
+  font-family: var(--font-sans);
+}
