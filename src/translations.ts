@@ -58,7 +58,8 @@ export const translations = {
 
     // Order Modal - Payment
     'order.paymentInst.title': 'Payment Instructions',
-    'order.paymentInst.step1': '1. PAYMENT exactly',
+    'order.paymentInst.step1': '1. Cash Out exactly',
+    'order.paymentInst.step1.online': '1. PAYMENT exactly',
     'order.paymentInst.step1.bankStart': '1. Send exactly',
     'order.paymentInst.step1.agent': 'to our Agent number:',
     'order.paymentInst.step1.bank': 'to our Bank Account number:',
@@ -155,9 +156,11 @@ export const translations = {
 
     // Order Modal - Payment
     'order.paymentInst.title': 'পেমেন্ট নির্দেশিকা',
-    'order.paymentInst.step1': '1. PAYMENT exactly',
+    'order.paymentInst.step1': '১. ঠিক',
+    'order.paymentInst.step1.online': '১. ঠিক',
+    'order.paymentInst.step1.onlineEnd': 'টাকা পেমেন্ট (PAYMENT) করুন:',
     'order.paymentInst.step1.bankStart': '১. ঠিক',
-    'order.paymentInst.step1.agent': 'আমাদের এজেন্ট নম্বরে ক্যাশ আউট (Cash Out) করুন:',
+    'order.paymentInst.step1.agent': 'টাকা আমাদের এজেন্ট নম্বরে ক্যাশ আউট (Cash Out) করুন:',
     'order.paymentInst.step1.bank': 'আমাদের ব্যাংক অ্যাকাউন্টে পাঠান:',
     'order.paymentInst.copied': 'কপি হয়েছে!',
     'order.paymentInst.scan.agent': 'পে করতে কিউআর কোড স্ক্যান করুন',

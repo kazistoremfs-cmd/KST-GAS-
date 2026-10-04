@@ -20,14 +20,14 @@ const ICONS = {
 };
 
 export function OrderModal({ brand, isOpen, onClose, onSubmit }: OrderModalProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [size, setSize] = useState<CylinderSize>(12);
   const [cylinderType, setCylinderType] = useState<'refill' | 'new'>('refill');
   const [quantity, setQuantity] = useState<number>(1);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
   const [senderPhone, setSenderPhone] = useState('');
   const [trxId, setTrxId] = useState('');
   const [deliveryType, setDeliveryType] = useState<'self' | 'road_step'>('road_step');
@@ -58,7 +58,7 @@ export function OrderModal({ brand, isOpen, onClose, onSubmit }: OrderModalProps
       setSize(12);
       setCylinderType('refill');
       setQuantity(1);
-      setPaymentMethod('cash');
+      setPaymentMethod('cod');
       setDeliveryType('road_step');
       setSenderPhone('');
       setTrxId('');
@@ -71,16 +71,17 @@ export function OrderModal({ brand, isOpen, onClose, onSubmit }: OrderModalProps
   const subtotal = cylinderBasePrice * quantity;
   const totalPrice = subtotal + DELIVERY_CHARGE;
 
-  const availablePaymentMethods = totalPrice < 2000 ? PAYMENT_METHODS_UNDER_2000 : PAYMENT_METHODS_ABOVE_2000;
+  const isAbove2000 = totalPrice > 2000;
+  const availablePaymentMethods = isAbove2000 ? PAYMENT_METHODS_ABOVE_2000 : PAYMENT_METHODS_UNDER_2000;
 
   // Auto-switch payment method when total price crosses 2000 Tk boundary
   useEffect(() => {
-    if (totalPrice < 2000) {
+    if (totalPrice <= 2000) {
       if (!['cod', 'cash', 'online'].includes(paymentMethod)) {
         setPaymentMethod('online');
       }
     } else {
-      if (paymentMethod === 'online') {
+      if (!['cod', 'bkash', 'nagad', 'rocket', 'cash', 'bank'].includes(paymentMethod)) {
         setPaymentMethod('bkash');
       }
     }
@@ -502,6 +503,11 @@ export function OrderModal({ brand, isOpen, onClose, onSubmit }: OrderModalProps
                           />
                           <Icon className={`w-6 h-6 lg:w-7 lg:h-7 ${paymentMethod === method.id ? 'text-white' : 'text-slate-400 group-hover:text-slate-600'}`} />
                           <span className="text-xs font-bold tracking-wide uppercase">{method.label}</span>
+                          {method.id === 'online' && (
+                            <span className={`text-[10px] font-semibold -mt-1 ${paymentMethod === method.id ? 'text-blue-200' : 'text-slate-500'}`}>
+                              {language === 'bn' ? '(কিউআর কোড সহ)' : '(QR Code)'}
+                            </span>
+                          )}
                           
                           {paymentMethod === method.id && (
                             <div className="absolute top-2 right-2 text-white">
@@ -530,21 +536,43 @@ export function OrderModal({ brand, isOpen, onClose, onSubmit }: OrderModalProps
                             <div className="text-xs lg:text-sm text-slate-600 space-y-1.5 pt-0.5">
                               <p className="font-bold text-slate-900 tracking-wide uppercase text-xs">{t("order.paymentInst.title")}</p>
                               <div className="flex flex-col gap-3">
-                                <div className="flex flex-wrap items-center gap-1.5 leading-relaxed text-sm">
-                                  <span className="font-semibold text-slate-800">{effectiveMethod === 'bank' ? t('order.paymentInst.step1.bankStart') : t('order.paymentInst.step1')}</span>
-                                  <span className="font-extrabold text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-sm text-sm">৳ {totalPrice}</span>
-                                  {effectiveMethod === 'bank' && (
-                                    <>
-                                      <span>{t('order.paymentInst.step1.bank')}</span>
-                                      <span className="font-bold text-slate-900 tracking-wider bg-slate-200/50 px-2 py-1 rounded inline-flex items-center gap-2">
-                                        {getAgentNumber(effectiveMethod)}
-                                        <button type="button" onClick={handleCopyNumber} className="hover:text-blue-600 transition-colors bg-white shadow-sm p-1 rounded border border-slate-200" title="Copy Number">
-                                          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
-                                        </button>
+                                {effectiveMethod === 'online' ? (
+                                  <div className="flex flex-wrap items-center gap-1.5 leading-relaxed text-sm">
+                                    <span className="font-semibold text-slate-800">
+                                      {language === 'bn' ? '১. ঠিক' : '1. PAYMENT exactly'}
+                                    </span>
+                                    <span className="font-extrabold text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-sm text-sm">৳ {totalPrice}</span>
+                                    {language === 'bn' && (
+                                      <span className="font-semibold text-slate-800">
+                                        টাকা পেমেন্ট (PAYMENT) করুন:
                                       </span>
-                                    </>
-                                  )}
-                                </div>
+                                    )}
+                                  </div>
+                                ) : effectiveMethod === 'bank' ? (
+                                  <div className="flex flex-wrap items-center gap-1.5 leading-relaxed text-sm">
+                                    <span className="font-semibold text-slate-800">{t('order.paymentInst.step1.bankStart')}</span>
+                                    <span className="font-extrabold text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-sm text-sm">৳ {totalPrice}</span>
+                                    <span>{t('order.paymentInst.step1.bank')}</span>
+                                    <span className="font-bold text-slate-900 tracking-wider bg-slate-200/50 px-2 py-1 rounded inline-flex items-center gap-2">
+                                      {getAgentNumber(effectiveMethod)}
+                                      <button type="button" onClick={handleCopyNumber} className="hover:text-blue-600 transition-colors bg-white shadow-sm p-1 rounded border border-slate-200" title="Copy Number">
+                                        {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+                                      </button>
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="flex flex-wrap items-center gap-1.5 leading-relaxed text-sm">
+                                    <span className="font-semibold text-slate-800">{t('order.paymentInst.step1')}</span>
+                                    <span className="font-extrabold text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-sm text-sm">৳ {totalPrice}</span>
+                                    <span>{t('order.paymentInst.step1.agent')}</span>
+                                    <span className="font-bold text-slate-900 tracking-wider bg-slate-200/50 px-2 py-1 rounded inline-flex items-center gap-2">
+                                      {getAgentNumber(effectiveMethod)}
+                                      <button type="button" onClick={handleCopyNumber} className="hover:text-blue-600 transition-colors bg-white shadow-sm p-1 rounded border border-slate-200" title="Copy Number">
+                                        {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+                                      </button>
+                                    </span>
+                                  </div>
+                                )}
 
                                 {/* QR Code image - ALWAYS visible */}
                                 <div className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-2.5 shadow-sm max-w-[260px] mx-auto w-full my-1">
